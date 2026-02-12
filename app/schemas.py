@@ -5,6 +5,7 @@ Auto-generated from api-contract.json OpenAPI specification
 from datetime import date, datetime
 from typing import Optional, List
 from enum import Enum
+from uuid import UUID
 from pydantic import BaseModel, Field, ConfigDict
 
 
@@ -130,7 +131,7 @@ class ProjectUpdate(BaseModel):
 
 class ProjectRead(BaseModel):
     """Schema for reading project data"""
-    id: int = Field(..., description="Unique project identifier")
+    id: UUID = Field(..., description="Unique project identifier")
     name: str = Field(..., description="Project name")
     description: Optional[str] = Field(None, description="Detailed project description")
     status: ProjectStatus = Field(..., description="Project status")
@@ -265,8 +266,8 @@ class LocationUpdate(BaseModel):
 
 class LocationRead(BaseModel):
     """Schema for reading location data"""
-    id: int = Field(..., description="Unique location identifier")
-    project_id: int = Field(..., description="ID of the parent project")
+    id: UUID = Field(..., description="Unique location identifier")
+    project_id: UUID = Field(..., description="ID of the parent project")
     name: str = Field(..., description="Location name")
     address: str = Field(..., description="Physical address of the location")
     coordinates: Optional[Coordinates] = Field(None, description="GPS coordinates")

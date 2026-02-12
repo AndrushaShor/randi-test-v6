@@ -66,7 +66,7 @@ async def list_projects(
     projects = result.scalars().all()
     
     return ProjectListResponse(
-        projects=[ProjectRead.model_validate(p) for p in projects],
+        items=[ProjectRead.model_validate(p) for p in projects],
         total=total,
         limit=limit,
         offset=offset

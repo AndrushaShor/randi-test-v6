@@ -1,0 +1,1060 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Construction Project Management API",
+    "description": "REST API for managing construction projects and their locations",
+    "version": "1.0.0",
+    "contact": {
+      "name": "Backend Team"
+    }
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8000",
+      "description": "Development server"
+    }
+  ],
+  "tags": [
+    {
+      "name": "projects",
+      "description": "Project management operations"
+    },
+    {
+      "name": "locations",
+      "description": "Location management operations"
+    }
+  ],
+  "paths": {
+    "/api/projects": {
+      "get": {
+        "tags": ["projects"],
+        "summary": "List all projects",
+        "description": "Retrieve a paginated list of projects with optional filtering",
+        "operationId": "listProjects",
+        "parameters": [
+          {
+            "name": "status",
+            "in": "query",
+            "description": "Filter by project status",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": ["active", "completed", "on-hold"]
+            }
+          },
+          {
+            "name": "start_date_from",
+            "in": "query",
+            "description": "Filter projects starting from this date (inclusive)",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "date"
+            }
+          },
+          {
+            "name": "start_date_to",
+            "in": "query",
+            "description": "Filter projects starting up to this date (inclusive)",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "date"
+            }
+          },
+          {
+            "name": "name",
+            "in": "query",
+            "description": "Search projects by name (partial match, case-insensitive)",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 200
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Maximum number of results to return",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 20
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "description": "Number of results to skip",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "default": 0
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response with list of projects",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProjectListResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["projects"],
+        "summary": "Create a new project",
+        "description": "Create a new construction project",
+        "operationId": "createProject",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProjectCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Project created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProjectRead"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/projects/{id}": {
+      "get": {
+        "tags": ["projects"],
+        "summary": "Get project by ID",
+        "description": "Retrieve detailed information about a specific project",
+        "operationId": "getProject",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Project ID",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response with project details",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProjectRead"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Project not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": ["projects"],
+        "summary": "Update project",
+        "description": "Update an existing project (partial updates supported)",
+        "operationId": "updateProject",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Project ID",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProjectUpdate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Project updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProjectRead"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Project not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": ["projects"],
+        "summary": "Delete project",
+        "description": "Delete a project and all its associated locations",
+        "operationId": "deleteProject",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Project ID",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Project deleted successfully"
+          },
+          "404": {
+            "description": "Project not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/projects/{id}/locations": {
+      "get": {
+        "tags": ["locations"],
+        "summary": "List locations for a project",
+        "description": "Retrieve all locations associated with a specific project",
+        "operationId": "listProjectLocations",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Project ID",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response with list of locations",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/LocationRead"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Project not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["locations"],
+        "summary": "Add location to project",
+        "description": "Create a new location associated with a specific project",
+        "operationId": "createProjectLocation",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Project ID",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LocationCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Location created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LocationRead"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Project not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/locations/{id}": {
+      "put": {
+        "tags": ["locations"],
+        "summary": "Update location",
+        "description": "Update an existing location (partial updates supported)",
+        "operationId": "updateLocation",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Location ID",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LocationUpdate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Location updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LocationRead"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Location not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": ["locations"],
+        "summary": "Delete location",
+        "description": "Delete a specific location",
+        "operationId": "deleteLocation",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Location ID",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Location deleted successfully"
+          },
+          "404": {
+            "description": "Location not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "ProjectStatus": {
+        "type": "string",
+        "enum": ["active", "completed", "on-hold"],
+        "description": "Current status of the project"
+      },
+      "ProjectCreate": {
+        "type": "object",
+        "required": ["name", "start_date"],
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200,
+            "description": "Project name"
+          },
+          "description": {
+            "type": "string",
+            "maxLength": 2000,
+            "nullable": true,
+            "description": "Detailed project description"
+          },
+          "status": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ProjectStatus"
+              }
+            ],
+            "default": "active",
+            "description": "Project status"
+          },
+          "budget": {
+            "type": "number",
+            "format": "float",
+            "minimum": 0,
+            "nullable": true,
+            "description": "Project budget in dollars"
+          },
+          "start_date": {
+            "type": "string",
+            "format": "date",
+            "description": "Project start date (YYYY-MM-DD)"
+          },
+          "end_date": {
+            "type": "string",
+            "format": "date",
+            "nullable": true,
+            "description": "Project end date (YYYY-MM-DD)"
+          }
+        },
+        "example": {
+          "name": "Downtown Office Complex",
+          "description": "Construction of 15-story office building in downtown district",
+          "status": "active",
+          "budget": 5500000.00,
+          "start_date": "2026-03-01",
+          "end_date": "2027-12-31"
+        }
+      },
+      "ProjectUpdate": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200,
+            "description": "Project name"
+          },
+          "description": {
+            "type": "string",
+            "maxLength": 2000,
+            "nullable": true,
+            "description": "Detailed project description"
+          },
+          "status": {
+            "$ref": "#/components/schemas/ProjectStatus"
+          },
+          "budget": {
+            "type": "number",
+            "format": "float",
+            "minimum": 0,
+            "nullable": true,
+            "description": "Project budget in dollars"
+          },
+          "start_date": {
+            "type": "string",
+            "format": "date",
+            "description": "Project start date (YYYY-MM-DD)"
+          },
+          "end_date": {
+            "type": "string",
+            "format": "date",
+            "nullable": true,
+            "description": "Project end date (YYYY-MM-DD)"
+          }
+        },
+        "description": "All fields are optional for partial updates",
+        "example": {
+          "status": "completed",
+          "end_date": "2027-11-15"
+        }
+      },
+      "ProjectRead": {
+        "type": "object",
+        "required": ["id", "name", "status", "start_date", "created_at", "updated_at"],
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "Unique project identifier"
+          },
+          "name": {
+            "type": "string",
+            "description": "Project name"
+          },
+          "description": {
+            "type": "string",
+            "nullable": true,
+            "description": "Detailed project description"
+          },
+          "status": {
+            "$ref": "#/components/schemas/ProjectStatus"
+          },
+          "budget": {
+            "type": "number",
+            "format": "float",
+            "nullable": true,
+            "description": "Project budget in dollars"
+          },
+          "start_date": {
+            "type": "string",
+            "format": "date",
+            "description": "Project start date"
+          },
+          "end_date": {
+            "type": "string",
+            "format": "date",
+            "nullable": true,
+            "description": "Project end date"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Timestamp when project was created"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Timestamp when project was last updated"
+          }
+        },
+        "example": {
+          "id": 1,
+          "name": "Downtown Office Complex",
+          "description": "Construction of 15-story office building in downtown district",
+          "status": "active",
+          "budget": 5500000.00,
+          "start_date": "2026-03-01",
+          "end_date": "2027-12-31",
+          "created_at": "2026-02-12T10:30:00Z",
+          "updated_at": "2026-02-12T10:30:00Z"
+        }
+      },
+      "ProjectListResponse": {
+        "type": "object",
+        "required": ["items", "total", "limit", "offset"],
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ProjectRead"
+            },
+            "description": "Array of projects"
+          },
+          "total": {
+            "type": "integer",
+            "description": "Total number of projects matching filters"
+          },
+          "limit": {
+            "type": "integer",
+            "description": "Maximum number of results returned"
+          },
+          "offset": {
+            "type": "integer",
+            "description": "Number of results skipped"
+          }
+        },
+        "example": {
+          "items": [
+            {
+              "id": 1,
+              "name": "Downtown Office Complex",
+              "description": "Construction of 15-story office building",
+              "status": "active",
+              "budget": 5500000.00,
+              "start_date": "2026-03-01",
+              "end_date": "2027-12-31",
+              "created_at": "2026-02-12T10:30:00Z",
+              "updated_at": "2026-02-12T10:30:00Z"
+            }
+          ],
+          "total": 1,
+          "limit": 20,
+          "offset": 0
+        }
+      },
+      "Coordinates": {
+        "type": "object",
+        "required": ["lat", "lng"],
+        "properties": {
+          "lat": {
+            "type": "number",
+            "format": "float",
+            "minimum": -90,
+            "maximum": 90,
+            "description": "Latitude coordinate"
+          },
+          "lng": {
+            "type": "number",
+            "format": "float",
+            "minimum": -180,
+            "maximum": 180,
+            "description": "Longitude coordinate"
+          }
+        },
+        "example": {
+          "lat": 40.7128,
+          "lng": -74.0060
+        }
+      },
+      "LocationCreate": {
+        "type": "object",
+        "required": ["name", "address"],
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200,
+            "description": "Location name"
+          },
+          "address": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 500,
+            "description": "Physical address of the location"
+          },
+          "coordinates": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Coordinates"
+              }
+            ],
+            "nullable": true,
+            "description": "GPS coordinates"
+          },
+          "notes": {
+            "type": "string",
+            "maxLength": 2000,
+            "nullable": true,
+            "description": "Additional notes about the location"
+          }
+        },
+        "example": {
+          "name": "Main Construction Site",
+          "address": "123 Broadway, New York, NY 10001",
+          "coordinates": {
+            "lat": 40.7128,
+            "lng": -74.0060
+          },
+          "notes": "Primary excavation site"
+        }
+      },
+      "LocationUpdate": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200,
+            "description": "Location name"
+          },
+          "address": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 500,
+            "description": "Physical address of the location"
+          },
+          "coordinates": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Coordinates"
+              }
+            ],
+            "nullable": true,
+            "description": "GPS coordinates"
+          },
+          "notes": {
+            "type": "string",
+            "maxLength": 2000,
+            "nullable": true,
+            "description": "Additional notes about the location"
+          }
+        },
+        "description": "All fields are optional for partial updates",
+        "example": {
+          "notes": "Excavation completed, foundation work in progress"
+        }
+      },
+      "LocationRead": {
+        "type": "object",
+        "required": ["id", "project_id", "name", "address", "created_at", "updated_at"],
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "Unique location identifier"
+          },
+          "project_id": {
+            "type": "integer",
+            "description": "ID of the parent project"
+          },
+          "name": {
+            "type": "string",
+            "description": "Location name"
+          },
+          "address": {
+            "type": "string",
+            "description": "Physical address of the location"
+          },
+          "coordinates": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Coordinates"
+              }
+            ],
+            "nullable": true,
+            "description": "GPS coordinates"
+          },
+          "notes": {
+            "type": "string",
+            "nullable": true,
+            "description": "Additional notes about the location"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Timestamp when location was created"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Timestamp when location was last updated"
+          }
+        },
+        "example": {
+          "id": 1,
+          "project_id": 1,
+          "name": "Main Construction Site",
+          "address": "123 Broadway, New York, NY 10001",
+          "coordinates": {
+            "lat": 40.7128,
+            "lng": -74.0060
+          },
+          "notes": "Primary excavation site",
+          "created_at": "2026-02-12T10:35:00Z",
+          "updated_at": "2026-02-12T10:35:00Z"
+        }
+      },
+      "ErrorResponse": {
+        "type": "object",
+        "required": ["detail"],
+        "properties": {
+          "detail": {
+            "oneOf": [
+              {
+                "type": "string",
+                "description": "Error message for simple errors"
+              },
+              {
+                "type": "array",
+                "description": "Array of validation errors",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "loc": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "description": "Location of the error (e.g., ['body', 'name'])"
+                    },
+                    "msg": {
+                      "type": "string",
+                      "description": "Error message"
+                    },
+                    "type": {
+                      "type": "string",
+                      "description": "Error type"
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        },
+        "examples": [
+          {
+            "summary": "Simple error",
+            "value": {
+              "detail": "Project not found"
+            }
+          },
+          {
+            "summary": "Validation error",
+            "value": {
+              "detail": [
+                {
+                  "loc": ["body", "name"],
+                  "msg": "field required",
+                  "type": "value_error.missing"
+                },
+                {
+                  "loc": ["body", "budget"],
+                  "msg": "ensure this value is greater than or equal to 0",
+                  "type": "value_error.number.not_ge"
+                }
+              ]
+            }
+          }
+        ]
+      }
+    }
+  }
+}

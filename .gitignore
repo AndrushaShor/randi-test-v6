@@ -1,0 +1,40 @@
+
+# ──── Randi: secrets protection (auto-generated) ────
+# Service account keys
+*-sa-key.json
+*-sa-key-*.json
+*service-account*.json
+*serviceaccount*.json
+*credentials*.json
+gcp-*.json
+firebase-*.json
+
+# Environment & config secrets
+.env
+.env.*
+!.env.example
+!.env.sample
+!.env.template
+
+# API key files
+opencode.json
+.opencode/
+
+# Git credentials (should never be in workspace, but just in case)
+.git-credentials
+.gitcredentials
+.netrc
+
+# Randi internal
+.hive/
+_secrets/
+
+# Common secret file patterns
+*.pem
+*.key
+*.p12
+*.pfx
+*.keystore
+id_rsa*
+id_ed25519*
+*.gpg

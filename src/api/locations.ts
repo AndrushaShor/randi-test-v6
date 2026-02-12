@@ -6,7 +6,6 @@
 import { apiClient } from './client';
 import type {
   Location,
-  LocationsResponse,
   CreateLocationInput,
   UpdateLocationInput,
 } from '../types';
@@ -14,26 +13,19 @@ import type {
 export const locationsApi = {
   /**
    * Get all locations for a project
+   * Returns array of locations (not paginated according to API contract)
    */
-  getProjectLocations: async (projectId: number): Promise<LocationsResponse> => {
-    const response = await apiClient.get<LocationsResponse>(`/projects/${projectId}/locations`);
-    return response.data;
-  },
-
-  /**
-   * Get a single location by ID
-   */
-  getLocation: async (id: number): Promise<Location> => {
-    const response = await apiClient.get<Location>(`/locations/${id}`);
+  getProjectLocations: async (projectId: number): Promise<Location[]> => {
+    const response = await apiClient.get<Location[]>(`/projects/${projectId}/locations`);
     return response.data;
   },
 
   /**
    * Create a new location for a project
    */
-  createLocation: async (data: CreateLocationInput): Promise<Location> => {
+  createLocation: async (projectId: number, data: CreateLocationInput): Promise<Location> => {
     const response = await apiClient.post<Location>(
-      `/projects/${data.project_id}/locations`,
+      `/projects/${projectId}/locations`,
       data
     );
     return response.data;

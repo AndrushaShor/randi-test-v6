@@ -9,7 +9,7 @@ export default defineConfig({
     port: 3000,
     allowedHosts: true, // Allow Docker host access
     proxy: {
-      '/api': 'http://Backend:3000'
+      '/api': 'http://Backend:8000'
     }
   }
 })

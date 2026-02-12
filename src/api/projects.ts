@@ -6,7 +6,7 @@
 import { apiClient } from './client';
 import type {
   Project,
-  ProjectsResponse,
+  ProjectListResponse,
   CreateProjectInput,
   UpdateProjectInput,
   ProjectFilters,
@@ -15,15 +15,18 @@ import type {
 export const projectsApi = {
   /**
    * Get all projects with optional filters
+   * Returns paginated response with items, total, limit, offset
    */
-  getProjects: async (filters?: ProjectFilters): Promise<ProjectsResponse> => {
+  getProjects: async (filters?: ProjectFilters): Promise<ProjectListResponse> => {
     const params = new URLSearchParams();
     if (filters?.status) params.append('status', filters.status);
-    if (filters?.search) params.append('search', filters.search);
+    if (filters?.name) params.append('name', filters.name);
     if (filters?.start_date_from) params.append('start_date_from', filters.start_date_from);
     if (filters?.start_date_to) params.append('start_date_to', filters.start_date_to);
+    if (filters?.limit) params.append('limit', filters.limit.toString());
+    if (filters?.offset) params.append('offset', filters.offset.toString());
     
-    const response = await apiClient.get<ProjectsResponse>(`/projects?${params.toString()}`);
+    const response = await apiClient.get<ProjectListResponse>(`/projects?${params.toString()}`);
     return response.data;
   },
 
